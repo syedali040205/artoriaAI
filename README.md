@@ -1,6 +1,6 @@
 # Artoria AI - Saber Chatbot
 
-![Artoria Pendragon (Saber) AI Assistant]
+Artoria Pendragon (Saber) AI Assistant
 
 A conversational AI interface featuring Artoria Pendragon (Saber) from the Fate franchise, with animated expressions and character-appropriate responses.
 
