@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="C:\Users\Syed Ayaan\Projects\artoria-ai\assets\expressions\excalibur.png" type="image/x-icon">
+    <title>Artoria AI Assistant</title>
+    <style>
+        @font-face {
+            font-family: 'GameBoy';
+            src: url('https://cdn.jsdelivr.net/gh/Aeomi/GameBoyFontTTF@master/Early%20GameBoy.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'GameBoy', monospace;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        .character-section {
+            width: 45%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .character-img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        .space-bubble-container {
+            position: absolute;
+            top: 10%;
+            right: 5%;
+            width: 50%;
+            height: 50%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 0;
+        }
+
+        .space-bubble {
+            position: relative;
+            background-color: rgba(10, 25, 47, 0.85);
+            color: #5affff;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 
+                0 0 15px #5affff,
+                0 0 30px rgba(90, 255, 255, 0.3),
+                inset 0 0 20px rgba(90, 255, 255, 0.2);
+            border: 2px solid #5affff;
+            text-shadow: 0 0 5px #5affff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
+            line-height: 1.6;
+            letter-spacing: 1px;
+            margin-left: -50px;
+        }
+
+        .space-bubble::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            bottom: 40%;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-right: 35px solid #5affff;
+            border-bottom: 15px solid transparent;
+            filter: drop-shadow(0 0 5px #5affff);
+        }
+
+        .space-bubble-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #fff;
+            text-align: center;
+            border-bottom: 2px solid #5affff;
+            padding-bottom: 12px;
+            text-shadow: 
+                0 0 5px #5affff,
+                0 0 10px #5affff;
+        }
+
+        .input-section {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            display: flex;
+            gap: 10px;
+            z-index: 2;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 2px solid #5affff;
+            background-color: rgba(10, 25, 47, 0.7);
+            color: #5affff;
+            font-size: 16px;
+            font-family: 'Press Start 2P', monospace;
+            box-shadow: 0 0 10px rgba(90, 255, 255, 0.5);
+        }
+
+        #user-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(90, 255, 255, 0.8);
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background-color: rgba(10, 25, 47, 0.8);
+            color: #5affff;
+            border: 2px solid #5affff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(90, 255, 255, 0.5);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8em;
+        }
+
+        .send-btn:hover {
+            background-color: rgba(90, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(90, 255, 255, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            gap: 10px;
+            z-index: 3;
+        }
+
+        .theme-toggle, .clear-btn {
+            background: rgba(10, 25, 47, 0.7);
+            border: 2px solid #5affff;
+            border-radius: 20px;
+            padding: 5px 15px;
+            color: #5affff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(90, 255, 255, 0.5);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7em;
+        }
+
+        .theme-toggle:hover, .clear-btn:hover {
+            background: rgba(90, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(90, 255, 255, 0.8);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #5affff;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.5s infinite ease-in-out;
+            box-shadow: 0 0 5px #5affff;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+        }
+
+        /* Pixel effect */
+        .pixelated {
+            image-rendering: pixelated;
+            font-family: 'GameBoy', monospace;
+        }
+
+        /* Light mode styles */
+        body.light-mode {
+            background-color: #0a1930;
+            background-image: 
+                radial-gradient(#5affff, rgba(90, 255, 255, .2) 2px, transparent 40px),
+                radial-gradient(#5affff, rgba(90, 255, 255, .15) 1px, transparent 30px),
+                radial-gradient(#5affff, rgba(90, 255, 255, .1) 2px, transparent 40px);
+        }
+
+        body.light-mode .space-bubble {
+            background-color: rgba(240, 248, 255, 0.85);
+            color: #0a1930;
+            box-shadow: 
+                0 0 15px #5affff,
+                0 0 30px rgba(90, 255, 255, 0.3),
+                inset 0 0 20px rgba(90, 255, 255, 0.2);
+            text-shadow: none;
+        }
+
+        body.light-mode .space-bubble::before {
+            border-right-color: #5affff;
+        }
+
+        body.light-mode .space-bubble-title {
+            color: #0a1930;
+            text-shadow: none;
+        }
+
+        body.light-mode #user-input {
+            background-color: rgba(240, 248, 255, 0.8);
+            color: #0a1930;
+        }
+
+        body.light-mode .send-btn,
+        body.light-mode .theme-toggle,
+        body.light-mode .clear-btn {
+            background: rgba(240, 248, 255, 0.8);
+            color: #0a1930;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="character-section">
+            <img id="character-image" src="assets/expressions/artoria_greeting.png" alt="Artoria Pendragon" class="character-img">
+        </div>
+        
+        <div class="space-bubble-container">
+            <div class="space-bubble" id="space-bubble">
+                <div class="space-bubble-title">Saber's Response</div>
+                <div id="ai-response" class="pixelated"></div>
+            </div>
+        </div>
+        
+        <form id="message-form" class="input-section">
+            <input type="text" id="user-input" placeholder="Speak to Artoria...">
+            <button type="submit" class="send-btn">SEND</button>
+        </form>
+        
+        <div class="controls">
+            <button class="theme-toggle" id="theme-toggle">THEME</button>
+            <button class="clear-btn" id="clear-chat">CLEAR</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const aiResponse = document.getElementById('ai-response');
+        const messageForm = document.getElementById('message-form');
+        const userInput = document.getElementById('user-input');
+        const themeToggle = document.getElementById('theme-toggle');
+        const clearChatBtn = document.getElementById('clear-chat');
+        const characterImage = document.getElementById('character-image');
+
+        // Character expressions
+        const expressions = {
+            idle: "C:\\Users\\Syed Ayaan\\Projects\\artoria-ai\\assets\\expressions\\artoria_greeting.png",
+            thinking: "C:\\Users\\Syed Ayaan\\Projects\\artoria-ai\\assets\\expressions\\artoria_thinking.png",
+            explaining: "C:\\Users\\Syed Ayaan\\Projects\\artoria-ai\\assets\\expressions\\artoria_answering.png",
+            sad : "C:\\Users\\Syed Ayaan\\Projects\\artoria-ai\\assets\\expressions\\artoria_sad.png"
+        };
+
+        // Initialize
+        window.onload = function() {
+            changeExpression('idle');
+            typeText("Greetings, Master. How may I serve you today?");
+        };
+
+        // Change character expression
+        function changeExpression(expression) {
+            characterImage.src = expressions[expression];
+            characterImage.alt = expression + " expression";
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            
+            if (message === '') return;
+            
+            userInput.value = '';
+            userInput.disabled = true;
+            
+            // Show thinking state
+            changeExpression('thinking');
+            showTypingIndicator();
+            
+            try {
+                // Call your Python backend
+                const response = await fetch('http://localhost:5000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                new Promise(resolve => setTimeout(resolve, 4000))
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Show response
+                changeExpression('explaining');
+                typeText(data.reply, () => {
+                    setTimeout(() => {
+                        changeExpression('idle');
+                        userInput.disabled = false;
+                        userInput.focus();
+                    }, 1500);
+                });
+                
+            } catch (error) {
+                console.error("Error:", error);
+                typeText("My apologies, Master. I seem to have encountered an unexpected error.");
+                changeExpression('sad');
+                userInput.disabled = false;
+                userInput.focus();
+                setTimeout(() => {
+            changeExpression('idle');
+                    }, 5000);
+            }
+            
+        }
+
+        // Type text animation
+        function typeText(text, onComplete) {
+            aiResponse.innerHTML = '';
+            let i = 0;
+            const speed = 30;
+            
+            function typeChar() {
+                if (i < text.length) {
+                    aiResponse.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, speed);
+                } else if (onComplete) {
+                    onComplete();
+                }
+            }
+            
+            typeChar();
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            aiResponse.innerHTML = 'Thinking<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // Clear chat
+        function clearChat() {
+            fetch('/api/clear', { method: 'POST' })
+                .then(() => {
+                    changeExpression('idle');
+                    typeText("The conversation has been cleared, Master. How may I serve you?");
+                })
+                .catch(error => {
+                    console.error("Error clearing chat:", error);
+                });
+        }
+
+        // Event listeners
+        messageForm.addEventListener('submit', handleSubmit);
+        themeToggle.addEventListener('click', toggleTheme);
+        clearChatBtn.addEventListener('click', clearChat);
+    </script>
+</body>
+</html>
